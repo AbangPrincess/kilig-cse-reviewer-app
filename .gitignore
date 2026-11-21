@@ -2,3 +2,12 @@ node_modules
 dist
 .netlify
 *.log
+
+# Secrets and local settings: never commit
+.env
+.env.*
+*.local
+*.pem
+*.key
+*.p12
+*.pfx
