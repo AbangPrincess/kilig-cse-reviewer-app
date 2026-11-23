@@ -333,8 +333,13 @@ strong { font-weight: 700; }
 .input { min-height: 52px; padding: 0 16px; border-radius: 16px; border: 2px solid var(--line-2); background: #fff; font-size: 16px; color: var(--ink); width: 100%; }
 /* Date fields: iPhone Safari draws its own date box that ignores the width and padding and centers
    the date. Make it a normal box so it keeps the same 16px inside edges as the other fields. */
-input[type='date'].input { -webkit-appearance: none; appearance: none; display: block; min-width: 0; max-width: 100%; text-align: left; }
-input[type='date'].input::-webkit-date-and-time-value { text-align: left; margin: 0; }
+input[type='date'].input {
+  -webkit-appearance: none; appearance: none; display: block; min-width: 0; max-width: 100%; text-align: left;
+  /* Without its own styling Safari puts the date at the top of the box, so center it with exact
+     spacing: 2px border + 12px + 24px line + 12px + 2px border = the same 52px as the other fields. */
+  height: 52px; padding-top: 12px; padding-bottom: 12px; line-height: 24px;
+}
+input[type='date'].input::-webkit-date-and-time-value { text-align: left; margin: 0; min-height: 24px; line-height: 24px; }
 /* Dropdowns: the app's own chevron, 16px in from the edge like the text and the date icon. */
 select.input {
   -webkit-appearance: none; appearance: none; font-family: inherit; cursor: pointer;

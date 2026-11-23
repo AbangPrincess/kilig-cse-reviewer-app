@@ -423,10 +423,11 @@ function Lobby({
               </button>
             </div>
           ) : (
-            <div key={p.id} className="player-row">
+            // The circle lines up with the first line of the name; a one-line name still sits centered beside it.
+            <div key={p.id} className="player-row" style={{ alignItems: 'flex-start' }}>
               <Avatar name={p.name} color={color(p.id)} />
               {/* Tags sit under the name so a phone-width row leaves the name room; names wrap only between words. */}
-              <span className="grow stack" style={{ gap: 3, minWidth: 0 }}>
+              <span className="grow stack" style={{ gap: 3, minWidth: 0, minHeight: 40, justifyContent: 'center' }}>
                 <span className="player-name" style={{ fontWeight: 700 }}>{p.name}</span>
                 {(p.id === st.hostId || p.id === seat.playerId) && (
                   <span className="row" style={{ gap: 6 }}>
@@ -436,7 +437,7 @@ function Lobby({
                 )}
               </span>
               {p.id === seat.playerId && (
-                <button type="button" className="btn-text" style={{ minHeight: 40, padding: '0 6px', fontSize: 14, border: 'none' }} onClick={() => setEditing(true)}>
+                <button type="button" className="btn-text" style={{ minHeight: 40, padding: '0 6px', fontSize: 14, border: 'none', alignSelf: 'center' }} onClick={() => setEditing(true)}>
                   Edit Name
                 </button>
               )}
