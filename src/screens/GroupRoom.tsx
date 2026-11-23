@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../lib/store';
 import { recordAnswer } from '../lib/progress';
 import { GroupError, groupApi, serverNow } from '../lib/groupApi';
@@ -12,6 +12,8 @@ import { useConfirm } from '../components/Confirm';
 import { JoinByLink } from './Group';
 import { go } from '../lib/router';
 
+/** A lobby with no joins, renames or start for this long stops checking in. */
+const LOBBY_IDLE_MS = 15 * 60 * 1000;
 const AVATAR_COLORS = ['#D6224F', '#6B3FD4', '#0B7A8A', '#C98F12', '#0B7A5E', '#E0336A', '#4C2A9E', '#075761', '#C2410C', '#A8183D'];
 const errorText = (e: unknown) => (e instanceof Error ? e.message : 'Something went wrong. Try again.');
 const secs = (ms: number) => `${(ms / 1000).toFixed(1)}s`;
@@ -65,16 +67,46 @@ function Room({ seat }: { seat: GroupSeat }) {
     return () => window.clearInterval(t);
   }, []);
 
+  // Budget safeguards (each check-in is a paid Netlify function call):
+  // no checking while the tab is hidden, and a lobby where nothing happens for
+  // 15 minutes stops checking until someone taps Check Again.
+  const [visible, setVisible] = useState(() => document.visibilityState !== 'hidden');
+  useEffect(() => {
+    const onChange = () => setVisible(document.visibilityState !== 'hidden');
+    document.addEventListener('visibilitychange', onChange);
+    return () => document.removeEventListener('visibilitychange', onChange);
+  }, []);
+  const wasHidden = useRef(false);
+  useEffect(() => {
+    if (!visible) {
+      wasHidden.current = true;
+      return;
+    }
+    if (wasHidden.current) {
+      wasHidden.current = false;
+      void refresh();
+    }
+  }, [visible, refresh]);
+
+  const [lobbyActiveAt, setLobbyActiveAt] = useState(() => Date.now());
+  const lobbySignature = st ? `${st.startedAt}|${st.players.map((p) => `${p.id}:${p.name}`).join(',')}` : '';
+  useEffect(() => setLobbyActiveAt(Date.now()), [lobbySignature]);
+  const wake = () => {
+    setLobbyActiveAt(Date.now());
+    void refresh();
+  };
+
   const count = room?.questions.length ?? 0;
   const phase: Phase = room && st ? phaseAt(st.startedAt, st.settings, count, serverNow()) : { kind: 'lobby' };
   const index = phase.kind === 'question' || phase.kind === 'reveal' ? phase.index : -1;
   const revealsIn = st ? Object.keys(st.reveals).length : 0;
   const waitingForReveal = (phase.kind === 'reveal' && !st?.reveals[phase.index]) || (phase.kind === 'done' && revealsIn < count);
+  const lobbyIdle = phase.kind === 'lobby' && Date.now() - lobbyActiveAt > LOBBY_IDLE_MS;
 
   // Check in with the server only when something can change: every 2.5 s in the lobby,
   // every 4 s during a question (to show who has answered), and right away until each reveal arrives.
   useEffect(() => {
-    if (!room || ended) return;
+    if (!room || ended || !visible || lobbyIdle) return;
     const delay = phase.kind === 'lobby' ? 2500 : phase.kind === 'question' ? 4000 : waitingForReveal ? 1200 : null;
     if (delay === null) return;
     let stop = false;
@@ -88,7 +120,7 @@ function Room({ seat }: { seat: GroupSeat }) {
       stop = true;
       window.clearTimeout(timer);
     };
-  }, [phase.kind, index, waitingForReveal, room, ended, refresh]);
+  }, [phase.kind, index, waitingForReveal, room, ended, visible, lobbyIdle, refresh]);
 
   // When it's over, add this player's answers to their own progress (once).
   useEffect(() => {
@@ -167,7 +199,7 @@ function Room({ seat }: { seat: GroupSeat }) {
   const color = (id: string) => AVATAR_COLORS[Math.max(0, players.findIndex((p) => p.id === id)) % AVATAR_COLORS.length];
 
   if (phase.kind === 'lobby') {
-    return <Lobby seat={seat} st={st} players={players} me={me} host={host} color={color} notice={notice} onLeave={() => leave(false)} onRefresh={refresh} setSt={setSt} />;
+    return <Lobby seat={seat} st={st} players={players} me={me} host={host} color={color} notice={notice} idle={lobbyIdle} onWake={wake} onLeave={() => leave(false)} onRefresh={refresh} setSt={setSt} />;
   }
 
   if (phase.kind === 'countdown') {
@@ -265,6 +297,8 @@ function Lobby({
   host,
   color,
   notice,
+  idle,
+  onWake,
   onLeave,
   onRefresh,
   setSt,
@@ -276,6 +310,8 @@ function Lobby({
   host: PublicPlayer | undefined;
   color: (id: string) => string;
   notice: string | null;
+  idle: boolean;
+  onWake: () => void;
   onLeave: () => void;
   onRefresh: () => Promise<void>;
   setSt: (s: RoomState) => void;
@@ -401,6 +437,18 @@ function Lobby({
           ),
         )}
       </section>
+
+      {idle && (
+        <div className="card stack center" role="status" style={{ gap: 10, alignItems: 'center', background: 'var(--sun-soft)', borderColor: 'var(--sun-soft)' }}>
+          <span className="h2" style={{ fontSize: 19 }}>Still Waiting?</span>
+          <span style={{ fontSize: 14, color: 'var(--body)' }}>
+            Nothing changed for 15 minutes, so we stopped checking for new people to save data. Tap below to look again.
+          </span>
+          <button type="button" className="btn btn-ink" style={{ minHeight: 46, fontSize: 15, padding: '0 18px' }} onClick={onWake}>
+            Check Again
+          </button>
+        </div>
+      )}
 
       {isHost ? (
         <>
