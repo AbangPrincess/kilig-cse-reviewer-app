@@ -7,6 +7,7 @@ import { clock } from '../lib/format';
 import { sectionName } from '../data/topics';
 import { DecoHeart, Icon } from '../components/Icons';
 import { Choice, QuestionBody, StableText } from '../components/Common';
+import { useConfirm } from '../components/Confirm';
 import { TabBar } from '../components/TabBar';
 import { go, href } from '../lib/router';
 
@@ -17,6 +18,7 @@ export function elapsedMs(run: ExamRun, now = Date.now()): number {
 
 export function ExamStart() {
   const { state, update } = useStore();
+  const confirm = useConfirm();
   const [mode, setMode] = useState<'strict' | 'relaxed'>('strict');
   const run = state.exam;
   const last = state.mocks[state.mocks.length - 1];
@@ -40,8 +42,15 @@ export function ExamStart() {
     go('/exam/run');
   }
 
-  function discard() {
-    if (window.confirm('Discard the mock exam in progress? Your answers in it will be lost.')) update((s) => ({ ...s, exam: null }));
+  async function discard() {
+    const ok = await confirm({
+      title: 'Discard This Mock Exam?',
+      message: 'The exam in progress and your answers in it will be lost.',
+      confirmLabel: 'Discard Exam',
+      cancelLabel: 'Keep It',
+      danger: true,
+    });
+    if (ok) update((s) => ({ ...s, exam: null }));
   }
 
   return (
@@ -129,6 +138,7 @@ function score(run: ExamRun): MockResult {
 
 export function ExamRunScreen() {
   const { state, update } = useStore();
+  const confirm = useConfirm();
   const run = state.exam;
   const [now, setNow] = useState(Date.now());
   const [sheet, setSheet] = useState(false);
@@ -205,9 +215,17 @@ export function ExamRunScreen() {
   const toggleFlag = () => update((s) => (s.exam ? { ...s, exam: { ...s.exam, flags: s.exam.flags.map((f, i) => (i === s.exam!.current ? !f : f)) } } : s));
   const pause = () => update((s) => (s.exam && s.exam.resumedAt ? { ...s, exam: { ...s.exam, bankedMs: s.exam.bankedMs + (Date.now() - s.exam.resumedAt), resumedAt: null } } : s));
   const resume = () => update((s) => (s.exam ? { ...s, exam: { ...s.exam, resumedAt: Date.now() } } : s));
-  const trySubmit = () => {
+  const trySubmit = async () => {
     const blanks = run.answers.filter((a) => a === null).length;
-    if (blanks && !window.confirm(`You still have ${blanks} blank item${blanks === 1 ? '' : 's'}. Submit anyway?`)) return;
+    if (blanks) {
+      const ok = await confirm({
+        title: 'Submit with Blank Items?',
+        message: `You still have ${blanks} blank item${blanks === 1 ? '' : 's'}. Blank items count as wrong.`,
+        confirmLabel: 'Submit Anyway',
+        cancelLabel: 'Keep Answering',
+      });
+      if (!ok) return;
+    }
     submit();
   };
 

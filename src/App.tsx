@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { StoreProvider, useStore } from './lib/store';
 import { Splash } from './components/Splash';
+import { ConfirmProvider } from './components/Confirm';
 import { useRoute } from './lib/router';
 import type { SectionId } from './lib/types';
 import type { SessionKind } from './lib/sessions';
@@ -73,9 +74,11 @@ export default function App() {
   const [splash, setSplash] = useState(true);
   return (
     <StoreProvider>
-      <div className="app">
-        <Screens />
-      </div>
+      <ConfirmProvider>
+        <div className="app">
+          <Screens />
+        </div>
+      </ConfirmProvider>
       {splash && <Splash onDone={() => setSplash(false)} />}
     </StoreProvider>
   );

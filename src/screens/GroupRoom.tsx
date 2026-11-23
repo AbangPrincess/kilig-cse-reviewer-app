@@ -8,6 +8,7 @@ import type { Question } from '../lib/types';
 import { sectionName } from '../data/topics';
 import { DecoHeart, Icon } from '../components/Icons';
 import { Choice, QuestionBody, StableText, letter, type ChoiceState } from '../components/Common';
+import { useConfirm } from '../components/Confirm';
 import { JoinByLink } from './Group';
 import { go } from '../lib/router';
 
@@ -28,6 +29,7 @@ export function GroupRoom({ code }: { code: string }) {
 
 function Room({ seat }: { seat: GroupSeat }) {
   const { update } = useStore();
+  const confirm = useConfirm();
   const [room, setRoom] = useState<RoomInfo | null>(null);
   const [st, setSt] = useState<RoomState | null>(null);
   const [ended, setEnded] = useState<string | null>(null);
@@ -121,7 +123,15 @@ function Room({ seat }: { seat: GroupSeat }) {
   }
 
   async function leave(confirmFirst: boolean) {
-    if (confirmFirst && !window.confirm('Leave this study date? Your score so far stays on the board.')) return;
+    if (confirmFirst) {
+      const ok = await confirm({
+        title: 'Leave This Study Date?',
+        message: "Your score so far stays on the board, but you can't come back in.",
+        confirmLabel: 'Leave',
+        cancelLabel: 'Stay',
+      });
+      if (!ok) return;
+    }
     if (phase.kind !== 'done') await groupApi.leave(seat).catch(() => undefined);
     clearSeat();
     go('/group');

@@ -5,6 +5,7 @@ import { addDays, todayKey } from '../lib/format';
 import { NUM_TOPICS } from '../data/topics';
 import { Icon } from '../components/Icons';
 import { TabBar } from '../components/TabBar';
+import { useConfirm } from '../components/Confirm';
 import { href } from '../lib/router';
 import type { LoveLevel } from '../lib/types';
 
@@ -12,6 +13,7 @@ const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 export function Me() {
   const { state, update, saveError } = useStore();
+  const confirm = useConfirm();
   const fileRef = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const st = streak(state);
@@ -44,14 +46,27 @@ export function Me() {
       setMsg("That file doesn't look like a Kilig CSE backup.");
       return;
     }
-    if (window.confirm('Replace your current progress with this backup?')) {
+    const ok = await confirm({
+      title: 'Load This Backup?',
+      message: 'It replaces the progress saved on this device right now.',
+      confirmLabel: 'Load Backup',
+      cancelLabel: 'Cancel',
+    });
+    if (ok) {
       update(() => parsed);
       setMsg('Backup loaded.');
     }
   }
 
-  function reset() {
-    if (window.confirm('Erase ALL progress on this device? This cannot be undone. Save a backup first if you might want it back.')) {
+  async function reset() {
+    const ok = await confirm({
+      title: 'Erase All Progress?',
+      message: 'This removes everything saved on this device and cannot be undone. Save a backup first if you might want it back.',
+      confirmLabel: 'Erase Everything',
+      cancelLabel: 'Keep My Progress',
+      danger: true,
+    });
+    if (ok) {
       update(() => initialState());
       window.location.hash = '#/';
     }
