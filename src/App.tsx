@@ -14,6 +14,8 @@ import { ExamRunScreen, ExamStart } from './screens/Exam';
 import { MockReview, Results } from './screens/Results';
 import { Me } from './screens/Me';
 import { Group } from './screens/Group';
+import { GroupRoom } from './screens/GroupRoom';
+import { cleanCode } from './shared/group';
 import { Welcome } from './screens/Welcome';
 
 const SECTION_IDS: SectionId[] = ['numerical', 'verbal', 'analytical', 'geninfo'];
@@ -33,7 +35,8 @@ function Screens() {
   const sectionParam = query.get('section') as SectionId | null;
   const section = sectionParam && SECTION_IDS.includes(sectionParam) ? sectionParam : undefined;
 
-  if (!state.profile.onboarded && path !== '/practice') return <Welcome />;
+  // Friends opening a shared study date link go straight to it, even on their first visit.
+  if (!state.profile.onboarded && path !== '/practice' && !path.startsWith('/group')) return <Welcome />;
 
   switch (path) {
     case '/learn':
@@ -58,7 +61,9 @@ function Screens() {
     case '/me':
       return <Me key={key} />;
     case '/group':
-      return <Group />;
+      return <Group key={key} />;
+    case '/group/room':
+      return <GroupRoom key={key} code={cleanCode(query.get('code'))} />;
     default:
       return <Home key={key} />;
   }

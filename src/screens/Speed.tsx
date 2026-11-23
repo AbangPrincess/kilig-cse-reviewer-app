@@ -3,7 +3,7 @@ import { useStore } from '../lib/store';
 import { mulberry32, newSeed, pick, ri, shuffle, type Rng } from '../lib/rng';
 import { num } from '../lib/format';
 import { DecoHeart, Icon } from '../components/Icons';
-import { Ring } from '../components/Common';
+import { Ring, StableText } from '../components/Common';
 import { href } from '../lib/router';
 
 interface Problem {
@@ -120,7 +120,9 @@ export function Speed() {
           <Icon name="x" size={22} stroke={2.2} />
         </a>
         <span className="display" style={{ fontSize: 20 }}>Speed Round</span>
-        <span className="pill pill-sun">{score} ✓</span>
+        <span className="pill pill-sun">
+          <StableText text={`${score} ✓`} room="00 ✓" />
+        </span>
       </div>
 
       {phase === 'ready' && (

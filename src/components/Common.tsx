@@ -97,6 +97,22 @@ export function Choice({ i, text, state, onPick }: { i: number; text: string; st
   );
 }
 
+/**
+ * Ticking text (timers, live scores) that keeps a steady width. `room` is the widest value
+ * it normally shows, written with 0s (the widest digit in DM Sans), e.g. "0:00". The box only
+ * grows if the real text ever needs more room than that.
+ */
+export function StableText({ text, room }: { text: string; room: string }) {
+  return (
+    <span className="stable-text">
+      <span className="stable-room" aria-hidden="true">
+        {room}
+      </span>
+      <span>{text}</span>
+    </span>
+  );
+}
+
 export function BackLink({ to, label }: { to: string; label: string }) {
   return (
     <a className="back-link" href={`#${to}`}>

@@ -1,5 +1,5 @@
 // Simple offline support: network-first for pages, cache-first for built assets.
-const CACHE = 'kilig-cse-v1';
+const CACHE = 'kilig-cse-v2';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(['/', '/index.html', '/icon.svg', '/manifest.webmanifest'])));
@@ -17,6 +17,8 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
+  // Live data (group study dates) must never come from the offline cache.
+  if (url.origin === self.location.origin && url.pathname.startsWith('/api/')) return;
 
   if (req.mode === 'navigate') {
     event.respondWith(

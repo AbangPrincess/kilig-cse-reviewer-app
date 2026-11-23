@@ -186,12 +186,17 @@ export function Me() {
           {msg && <span className="small" role="status">{msg}</span>}
         </section>
 
-        <a href={href('/group')} className="chapter-btn" style={{ textDecoration: 'none', borderStyle: 'dashed' }}>
-          <span className="stack" style={{ gap: 2 }}>
-            <span style={{ fontWeight: 700 }}>Group Study Date</span>
-            <span className="small muted">Coming after solo mode</span>
+        <a href={href('/group')} className="chapter-btn" style={{ textDecoration: 'none' }}>
+          <span className="row" style={{ gap: 12 }}>
+            <span style={{ width: 40, height: 40, borderRadius: 12, background: 'var(--violet)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Icon name="users" size={20} />
+            </span>
+            <span className="stack" style={{ gap: 2 }}>
+              <span style={{ fontWeight: 700 }}>Group Study Date</span>
+              <span className="small muted">Study with up to 10 friends</span>
+            </span>
           </span>
-          <Icon name="users" size={22} color="var(--muted)" />
+          <Icon name="chevron" size={20} color="var(--muted)" />
         </a>
 
         <button type="button" className="btn btn-text" style={{ color: 'var(--wrong-ink)', alignSelf: 'center' }} onClick={reset}>

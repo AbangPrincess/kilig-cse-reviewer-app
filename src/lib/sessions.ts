@@ -127,6 +127,25 @@ export function buildSession(s: AppState, kind: SessionKind, opts: { topic?: str
   }
 }
 
+/**
+ * Questions for a Group Study Date: short, self-contained items (no reading passages),
+ * either from one section or spread evenly across all four.
+ */
+export function buildGroupSet(seen: Record<string, number>, count: number, section: SectionId | 'mix'): Question[] {
+  const r = mulberry32(newSeed());
+  const take = (sec: SectionId, n: number): Question[] => {
+    if (n <= 0) return [];
+    if (sec === 'numerical') return numericalMix(n);
+    const pool = shuffle(r, BANK[sec].filter((q) => !q.passage)).sort((a, b) => (seen[a.id] ?? 0) - (seen[b.id] ?? 0));
+    return pool.slice(0, n).map((q) => prepare(q));
+  };
+  if (section !== 'mix') return take(section, count);
+  const order: SectionId[] = ['numerical', 'verbal', 'analytical', 'geninfo'];
+  const start = Math.floor(r() * order.length);
+  const per = order.map((_, i) => Math.floor(count / 4) + ((i - start + 4) % 4 < count % 4 ? 1 : 0));
+  return shuffle(r, order.flatMap((sec, i) => take(sec, per[i])));
+}
+
 /** Full-length mock: 50 Verbal, 30 Analytical, 50 Numerical, 40 General Info = 170 items. */
 export function buildMock(seen: Record<string, number> = {}): Question[] {
   const r = mulberry32(newSeed());

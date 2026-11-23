@@ -6,7 +6,7 @@ import type { AppState, ExamRun, MockResult, SectionId, SectionScore } from '../
 import { clock } from '../lib/format';
 import { sectionName } from '../data/topics';
 import { DecoHeart, Icon } from '../components/Icons';
-import { Choice, QuestionBody } from '../components/Common';
+import { Choice, QuestionBody, StableText } from '../components/Common';
 import { TabBar } from '../components/TabBar';
 import { go, href } from '../lib/router';
 
@@ -221,7 +221,7 @@ export function ExamRunScreen() {
           <a href={href('/exam')} className="back-link" style={{ minHeight: 44 }}>Exit</a>
           <span className={`exam-timer${left < 10 * 60 * 1000 ? ' low' : ''}`} role="timer" aria-label="Time left">
             <Icon name="clock" size={18} color="var(--sun)" stroke={2.2} />
-            {clock(Math.max(0, left))}
+            <StableText text={clock(Math.max(0, left))} room="0:00:00" />
           </span>
           <div className="row" style={{ gap: 6 }}>
             {run.mode === 'relaxed' && (

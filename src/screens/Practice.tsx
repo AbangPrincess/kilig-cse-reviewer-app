@@ -6,7 +6,7 @@ import type { AppState, DiagnosticResult, LoveLevel, SectionId, SectionScore } f
 import { clock, duration } from '../lib/format';
 import { SECTIONS, topicById, topicName } from '../data/topics';
 import { Icon } from '../components/Icons';
-import { Choice, QuestionBody, Ring, letter, type ChoiceState } from '../components/Common';
+import { Choice, QuestionBody, Ring, StableText, letter, type ChoiceState } from '../components/Common';
 import { go, href } from '../lib/router';
 
 const RIGHT_LINES = ["Yieee! That's Right.", 'Slay! You Got It.', 'Perfect Match!', 'You Ate That!'];
@@ -134,7 +134,7 @@ export function Practice({ kind, topic, section }: { kind: SessionKind; topic?: 
           <span style={{ width: `${((idx + (checked ? 1 : 0)) / total) * 100}%` }} />
         </div>
         <span className="timer-chip" style={kind === 'mastery' && elapsed > 60000 ? { background: 'var(--wrong-soft)', color: 'var(--wrong-ink)' } : undefined}>
-          {clock(elapsed)}
+          <StableText text={clock(elapsed)} room="0:00" />
         </span>
       </div>
 
