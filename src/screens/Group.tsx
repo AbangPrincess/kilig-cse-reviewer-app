@@ -17,7 +17,7 @@ import {
 } from '../shared/group';
 import type { Question } from '../lib/types';
 import { DecoHeart, Icon } from '../components/Icons';
-import { BackLink } from '../components/Common';
+import { BackLink, ScrollRow } from '../components/Common';
 import { go, href } from '../lib/router';
 
 export const toStored = (q: Question): StoredQuestion => ({
@@ -155,13 +155,23 @@ export function Group() {
         </div>
         <div className="field">
           <span className="field-label" id="lbl-sections">Sections</span>
-          <div className="chips" role="radiogroup" aria-labelledby="lbl-sections">
+          <ScrollRow bleed={18} role="radiogroup" aria-labelledby="lbl-sections">
             {GROUP_SECTIONS.map((s) => (
-              <button key={s.id} type="button" role="radio" aria-checked={section === s.id} className="chip-btn" onClick={() => setSection(s.id)}>
+              <button
+                key={s.id}
+                type="button"
+                role="radio"
+                aria-checked={section === s.id}
+                className="chip-btn"
+                onClick={(e) => {
+                  setSection(s.id);
+                  e.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+                }}
+              >
                 {s.label}
               </button>
             ))}
-          </div>
+          </ScrollRow>
         </div>
         <button type="button" className="btn btn-rose block" aria-disabled={busy !== null} onClick={create}>
           {busy === 'create' ? 'Creating…' : 'Create Study Date'}

@@ -7,7 +7,7 @@ import type { SectionId } from './lib/types';
 import type { SessionKind } from './lib/sessions';
 import { TOPICS } from './data/topics';
 import { Home } from './screens/Home';
-import { Learn } from './screens/Learn';
+import { LEARN_ORDER, Learn } from './screens/Learn';
 import { Lesson } from './screens/Lesson';
 import { Practice } from './screens/Practice';
 import { Speed } from './screens/Speed';
@@ -41,9 +41,9 @@ function Screens() {
 
   switch (path) {
     case '/learn':
-      return <Learn key={key} section={section ?? 'numerical'} />;
+      return <Learn key={key} section={section ?? LEARN_ORDER[0]} />;
     case '/lesson':
-      return validTopic ? <Lesson key={key} topic={validTopic} /> : <Learn section="numerical" />;
+      return validTopic ? <Lesson key={key} topic={validTopic} /> : <Learn section={LEARN_ORDER[0]} />;
     case '/practice': {
       const kind = query.get('kind') as SessionKind | null;
       if (!kind || !KINDS.includes(kind) || ((kind === 'topic' || kind === 'mastery') && !validTopic)) return <Home />;

@@ -6,7 +6,7 @@ import type { AppState, ExamRun, MockResult, SectionId, SectionScore } from '../
 import { clock } from '../lib/format';
 import { sectionName } from '../data/topics';
 import { DecoHeart, Icon } from '../components/Icons';
-import { Choice, QuestionBody, StableText } from '../components/Common';
+import { Choice, QuestionBody, ScrollRow, StableText } from '../components/Common';
 import { useConfirm } from '../components/Confirm';
 import { TabBar } from '../components/TabBar';
 import { go, href } from '../lib/router';
@@ -80,11 +80,11 @@ export function ExamStart() {
             <span className="display" style={{ fontSize: 64 }}>170</span>
             <span style={{ fontSize: 18, fontWeight: 600, color: 'var(--plum-ink)' }}>Items</span>
           </span>
-          <div className="chips">
+          <ScrollRow bleed={24}>
             <span className="pill pill-glass">3h 10m</span>
             <span className="pill pill-glass">80% to Pass</span>
             <span className="pill pill-glass">All 4 Sections</span>
-          </div>
+          </ScrollRow>
           {last && (
             <a href={href(`/results?id=${last.id}`)} className="pill pill-sun" style={{ alignSelf: 'flex-start', textDecoration: 'none' }}>
               Last Try: {Math.round((last.score / last.total) * 100)}%

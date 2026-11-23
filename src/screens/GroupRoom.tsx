@@ -7,7 +7,7 @@ import { MAX_PLAYERS, NAME_MAX, cleanName, phaseAt, sectionLabel, type Phase, ty
 import type { Question } from '../lib/types';
 import { sectionName } from '../data/topics';
 import { DecoHeart, Icon } from '../components/Icons';
-import { Choice, QuestionBody, StableText, letter, type ChoiceState } from '../components/Common';
+import { Choice, QuestionBody, ScrollRow, StableText, letter, type ChoiceState } from '../components/Common';
 import { useConfirm } from '../components/Confirm';
 import { JoinByLink } from './Group';
 import { go } from '../lib/router';
@@ -400,11 +400,11 @@ function Lobby({
         </div>
       </section>
 
-      <div className="chips">
+      <ScrollRow>
         <span className="pill pill-soft">{st.settings.count} Questions</span>
         <span className="pill pill-soft">{st.settings.seconds}s per Question</span>
         <span className="pill pill-soft">{sectionLabel(st.settings.section)}</span>
-      </div>
+      </ScrollRow>
 
       <section className="card stack" style={{ gap: 6 }} aria-label="Who's here">
         <div className="between" style={{ marginBottom: 4 }}>
@@ -425,9 +425,16 @@ function Lobby({
           ) : (
             <div key={p.id} className="player-row">
               <Avatar name={p.name} color={color(p.id)} />
-              <span className="grow" style={{ fontWeight: 700, minWidth: 0, overflowWrap: 'anywhere' }}>{p.name}</span>
-              {p.id === st.hostId && <span className="ptag ptag-host">Host</span>}
-              {p.id === seat.playerId && <span className="ptag ptag-you">You</span>}
+              {/* Tags sit under the name so a phone-width row leaves the name room; names wrap only between words. */}
+              <span className="grow stack" style={{ gap: 3, minWidth: 0 }}>
+                <span className="player-name" style={{ fontWeight: 700 }}>{p.name}</span>
+                {(p.id === st.hostId || p.id === seat.playerId) && (
+                  <span className="row" style={{ gap: 6 }}>
+                    {p.id === st.hostId && <span className="ptag ptag-host">Host</span>}
+                    {p.id === seat.playerId && <span className="ptag ptag-you">You</span>}
+                  </span>
+                )}
+              </span>
               {p.id === seat.playerId && (
                 <button type="button" className="btn-text" style={{ minHeight: 40, padding: '0 6px', fontSize: 14, border: 'none' }} onClick={() => setEditing(true)}>
                   Edit Name

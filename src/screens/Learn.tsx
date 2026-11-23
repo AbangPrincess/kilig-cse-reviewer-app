@@ -6,9 +6,12 @@ import { LESSONS } from '../data/lessons';
 import type { SectionId } from '../lib/types';
 import { DecoHeart, Icon, LoveHearts } from '../components/Icons';
 import { TabBar } from '../components/TabBar';
+import { ScrollRow } from '../components/Common';
 import { go, href } from '../lib/router';
 
 const ZIGZAG = [8, 72, 136, 72];
+/** Order of the section buttons on the Learn tab. The tab opens on the first one. */
+export const LEARN_ORDER: SectionId[] = ['verbal', 'analytical', 'numerical', 'geninfo'];
 
 export function Learn({ section: initial }: { section: SectionId }) {
   const { state } = useStore();
@@ -33,13 +36,23 @@ export function Learn({ section: initial }: { section: SectionId }) {
     <>
       <main className="screen">
         <h1 className="h1">Learn</h1>
-        <div className="chips" role="tablist" aria-label="Sections">
-          {SECTIONS.map((s) => (
-            <button key={s.id} type="button" role="tab" aria-selected={s.id === section} className="chip-btn" onClick={() => pickSection(s.id)}>
+        <ScrollRow role="tablist" aria-label="Sections">
+          {LEARN_ORDER.map((id) => SECTIONS.find((s) => s.id === id)!).map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              role="tab"
+              aria-selected={s.id === section}
+              className="chip-btn"
+              onClick={(e) => {
+                pickSection(s.id);
+                e.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+              }}
+            >
               {s.short}
             </button>
           ))}
-        </div>
+        </ScrollRow>
 
         <a href={href(recLevel === 0 ? `/lesson?topic=${rec}` : `/practice?kind=topic&topic=${rec}`)} className="hero stack" style={{ textDecoration: 'none', gap: 10, borderRadius: 28, padding: 20 }}>
           <DecoHeart size={170} color="var(--rose)" opacity={0.45} rotate={-12} style={{ right: -44, bottom: -58 }} />

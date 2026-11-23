@@ -1,4 +1,4 @@
-import { Fragment, type ReactNode } from 'react';
+import { Fragment, useEffect, useRef, useState, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react';
 import type { Question } from '../lib/types';
 import { Icon } from './Icons';
 
@@ -94,6 +94,34 @@ export function Choice({ i, text, state, onPick }: { i: number; text: string; st
       {state === 'right' && <span className="tag">CORRECT</span>}
       {state === 'wrong' && <span className="tag">YOURS</span>}
     </button>
+  );
+}
+
+/**
+ * A row of chips that stays on one line. On narrow screens it scrolls sideways and fades
+ * out on whichever side has more to show, instead of wrapping onto a second line.
+ */
+export function ScrollRow({ children, className, bleed, style, ...rest }: HTMLAttributes<HTMLDivElement> & { children: ReactNode; bleed?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [edges, setEdges] = useState({ left: false, right: false });
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const update = () => setEdges({ left: el.scrollLeft > 2, right: el.scrollLeft + el.clientWidth < el.scrollWidth - 2 });
+    update();
+    el.addEventListener('scroll', update, { passive: true });
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(update) : null;
+    ro?.observe(el);
+    return () => {
+      el.removeEventListener('scroll', update);
+      ro?.disconnect();
+    };
+  }, []);
+  const cls = ['scroll-row', edges.left && 'fade-left', edges.right && 'fade-right', className].filter(Boolean).join(' ');
+  return (
+    <div ref={ref} className={cls} style={bleed === undefined ? style : ({ ...style, '--bleed': `${bleed}px` } as CSSProperties)} {...rest}>
+      {children}
+    </div>
   );
 }
 
