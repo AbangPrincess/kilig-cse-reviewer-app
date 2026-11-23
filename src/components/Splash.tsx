@@ -20,6 +20,15 @@ export function Splash({ onDone }: { onDone: () => void }) {
   const done = useRef(onDone);
   done.current = onDone;
 
+  // White behind everything while the splash is up, including the reserved scrollbar strip.
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.backgroundColor = '#fff';
+    return () => {
+      root.style.backgroundColor = '';
+    };
+  }, []);
+
   useEffect(() => {
     document.getElementById('boot')?.remove();
     let fade = 0;

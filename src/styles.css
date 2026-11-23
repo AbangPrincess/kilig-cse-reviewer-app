@@ -35,6 +35,8 @@
 
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
+/* Reserve the scrollbar's space up front, so the page doesn't nudge sideways when a scrollbar appears. */
+html { scrollbar-gutter: stable; }
 body {
   background: var(--blush);
   color: var(--ink);
