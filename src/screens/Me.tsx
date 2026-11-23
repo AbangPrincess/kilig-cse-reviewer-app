@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { exportState, initialState, parseBackup, useStore } from '../lib/store';
 import { dueMistakes, LOVE_LABELS, streak, topicOf } from '../lib/progress';
 import { addDays, todayKey } from '../lib/format';
@@ -6,6 +6,7 @@ import { NUM_TOPICS } from '../data/topics';
 import { Icon } from '../components/Icons';
 import { TabBar } from '../components/TabBar';
 import { useConfirm } from '../components/Confirm';
+import { LegalSheet, type LegalDoc } from '../components/LegalSheet';
 import { href } from '../lib/router';
 import type { LoveLevel } from '../lib/types';
 
@@ -14,6 +15,8 @@ const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 export function Me() {
   const { state, update, saveError } = useStore();
   const confirm = useConfirm();
+  const [legal, setLegal] = useState<LegalDoc | null>(null);
+  const closeLegal = useCallback(() => setLegal(null), []);
   const fileRef = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const st = streak(state);
@@ -217,7 +220,28 @@ export function Me() {
         <button type="button" className="btn btn-text" style={{ color: 'var(--wrong-ink)', alignSelf: 'center' }} onClick={reset}>
           Erase All Progress
         </button>
+
+        <footer className="app-footer" aria-label="About this app">
+          <p>
+            © 2026{' '}
+            <a href="https://princessabang.netlify.app" target="_blank" rel="noopener noreferrer" aria-label="Princess Abang (portfolio, opens in a new tab)">
+              Princess Abang
+            </a>
+            . All rights reserved.
+          </p>
+          <p>Independent study reviewer — not officially affiliated with or endorsed by the Philippine Civil Service Commission (CSC).</p>
+          <p className="app-footer-links">
+            <button type="button" onClick={() => setLegal('privacy')}>
+              Privacy Policy
+            </button>
+            <span aria-hidden="true">·</span>
+            <button type="button" onClick={() => setLegal('terms')}>
+              Terms of Use
+            </button>
+          </p>
+        </footer>
       </main>
+      {legal && <LegalSheet doc={legal} onClose={closeLegal} />}
       <TabBar active="me" />
     </>
   );
