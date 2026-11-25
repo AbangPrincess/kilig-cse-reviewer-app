@@ -4,7 +4,7 @@ import { Icon } from './Icons';
 export type LegalDoc = 'privacy' | 'terms';
 
 const PORTFOLIO = 'https://princessabang.netlify.app';
-const UPDATED = 'November 24, 2026';
+const UPDATED = 'November 25, 2026';
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -24,7 +24,7 @@ function Privacy() {
       <Section title="What Stays on Your Device">
         <p>
           Your progress is saved in this browser's local storage, on this device only: lesson levels, your answers and scores, your daily streak, your
-          mistakes pile and its review dates, mock exam results, your exam date and your daily goal. It is not uploaded anywhere.
+          mistakes pile and its review dates, mock exam results, your exam date, your daily goal, and whether you have already rated the app so it does not keep asking. It is not uploaded anywhere.
         </p>
         <p>A backup you save is a file on your own device. Only you decide where it goes.</p>
       </Section>
@@ -37,6 +37,12 @@ function Privacy() {
         <p>
           A study date closes after 12 hours. Its record may stay in storage until it is cleaned up, but it is not used for anything else. Your seat in
           the study date is a random ID saved on your device so you can rejoin after a refresh.
+        </p>
+      </Section>
+      <Section title="Feedback">
+        <p>
+          If you choose to rate the app, your heart rating, your message (if you write one) and the screen you sent it from are sent to our host,
+          Netlify, so the creator can read them. Feedback is not linked to your name or your progress, so please leave out personal details.
         </p>
       </Section>
       <Section title="Services We Use">

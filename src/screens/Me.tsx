@@ -7,6 +7,8 @@ import { Icon } from '../components/Icons';
 import { TabBar } from '../components/TabBar';
 import { useConfirm } from '../components/Confirm';
 import { LegalSheet, type LegalDoc } from '../components/LegalSheet';
+import { FeedbackSheet } from '../components/Feedback';
+import { feedbackSent } from '../lib/feedback';
 import { href } from '../lib/router';
 import type { LoveLevel } from '../lib/types';
 
@@ -17,6 +19,8 @@ export function Me() {
   const confirm = useConfirm();
   const [legal, setLegal] = useState<LegalDoc | null>(null);
   const closeLegal = useCallback(() => setLegal(null), []);
+  const [feedback, setFeedback] = useState(false);
+  const closeFeedback = useCallback(() => setFeedback(false), []);
   const fileRef = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const st = streak(state);
@@ -217,6 +221,19 @@ export function Me() {
           <Icon name="chevron" size={20} color="var(--muted)" />
         </a>
 
+        <button type="button" className="chapter-btn" onClick={() => setFeedback(true)}>
+          <span className="row" style={{ gap: 12 }}>
+            <span style={{ width: 40, height: 40, borderRadius: 12, background: 'var(--rose)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Icon name="chat" size={20} />
+            </span>
+            <span className="stack" style={{ gap: 2 }}>
+              <span style={{ fontWeight: 700 }}>Rate and Send Feedback</span>
+              <span className="small muted">{feedbackSent() ? 'Thanks for your feedback! Send more anytime.' : 'Tell us what to fix or add'}</span>
+            </span>
+          </span>
+          <Icon name="chevron" size={20} color="var(--muted)" />
+        </button>
+
         <button type="button" className="btn btn-text" style={{ color: 'var(--wrong-ink)', alignSelf: 'center' }} onClick={reset}>
           Erase All Progress
         </button>
@@ -242,6 +259,7 @@ export function Me() {
         </footer>
       </main>
       {legal && <LegalSheet doc={legal} onClose={closeLegal} />}
+      {feedback && <FeedbackSheet where="Me tab" onClose={closeFeedback} />}
       <TabBar active="me" />
     </>
   );

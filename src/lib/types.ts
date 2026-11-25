@@ -6,6 +6,42 @@ export interface DataTable {
   rows: (string | number)[][];
 }
 
+/** A bar, line or pie chart for data-interpretation items. Every value is printed on the chart. */
+export interface Chart {
+  kind: 'bar' | 'line' | 'pie';
+  title: string;
+  /** Axis note, e.g. "In thousands" or "Pesos". */
+  unit?: string;
+  labels: string[];
+  /** Bar and line charts take one or two series; a pie takes one series of percents. */
+  series: { name: string; values: number[] }[];
+  /** Value-axis range for bar and line charts. */
+  min?: number;
+  max?: number;
+  step?: number;
+  /** Text after each printed value, such as "%". */
+  suffix?: string;
+}
+
+/** One stroke or shape of a figure, on a 100 × 100 grid (y grows downward). */
+export type Mark =
+  | { k: 'circle'; x: number; y: number; r: number; fill?: boolean }
+  | { k: 'line'; p: number[] }
+  | { k: 'poly'; p: number[]; fill?: boolean }
+  | { k: 'arc'; x: number; y: number; r: number; from: number; to: number }
+  | { k: 'dot'; x: number; y: number };
+
+/** A drawing: a list of marks. */
+export type Pic = Mark[];
+
+/** The problem figure of an abstract-reasoning item. A null cell is the "?". */
+export interface FigureSet {
+  layout: 'pyramid' | 'matrix' | 'single';
+  cells: (Pic | null)[];
+  /** Pyramid cells sit in circles; matrix cells in a grid. */
+  frame?: 'circle';
+}
+
 /** One multiple-choice item, from the fixed bank or made by a Numerical generator. */
 export interface Question {
   id: string;
@@ -14,6 +50,12 @@ export interface Question {
   directions?: string;
   passage?: string;
   table?: DataTable;
+  chart?: Chart;
+  /** Items that share a chart or set; kept together like reading passages. */
+  group?: string;
+  figure?: FigureSet;
+  /** One drawing per choice for figure items; the choice text is its spoken description. */
+  figChoices?: Pic[];
   stem: string;
   choices: string[];
   answer: number;

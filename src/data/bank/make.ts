@@ -1,6 +1,8 @@
 import type { Question, SectionId } from '../../lib/types';
 
-export type Extra = Partial<Pick<Question, 'why' | 'passage' | 'source' | 'fixed' | 'directions'>>;
+export type Extra = Partial<
+  Pick<Question, 'why' | 'passage' | 'source' | 'fixed' | 'directions' | 'chart' | 'group' | 'table' | 'figure' | 'figChoices' | 'steps' | 'shortcut'>
+>;
 
 export function maker(section: SectionId, prefix: string, directions: Record<string, string>) {
   let n = 0;

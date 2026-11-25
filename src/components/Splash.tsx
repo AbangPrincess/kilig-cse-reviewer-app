@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { SOFT_HEART } from './Icons';
 
-/** The logo stays up, then fades quickly: 2 seconds in all. */
-const SHOW_MS = 1600;
-const FADE_MS = 400;
+/** The logo stays up for 2 seconds; then the screen is tugged down a bit and springs up out of view, like a projector screen. */
+const SHOW_MS = 2000;
+/** Keep in step with the splash-reel animation in styles.css. */
+const EXIT_MS = 850;
 
 type RGB = [number, number, number];
 /** Same pairs as the app's tiles: a flat face plus a solid darker edge underneath. */
@@ -12,51 +13,78 @@ const PINK_EDGE: RGB = [168, 24, 61]; // --rose-dark
 const SUN: RGB = [255, 194, 61]; // --sun
 const SUN_EDGE: RGB = [201, 143, 18]; // --sun-dark
 
-/** Opening screen: chubby pink "KiLIG" letters, shot from above with a 0.5x ultra-wide lens. */
+/** Space between the bottom of the letters and the caption, in CSS pixels. */
+const CAPTION_GAP = 10;
+
+/** Opening screen: chubby pink "KiLIG" letters, shot from above with a slightly bulging wide lens. */
 export function Splash({ onDone }: { onDone: () => void }) {
   const [leaving, setLeaving] = useState(false);
   const [drawn, setDrawn] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const lockRef = useRef<HTMLDivElement>(null);
   const done = useRef(onDone);
   done.current = onDone;
 
-  // White behind everything while the splash is up, including the reserved scrollbar strip.
+  // White behind everything while the splash is up. The page underneath stops scrolling, so no
+  // scrollbar shows; its reserved strip stays white like the splash.
   useEffect(() => {
     const root = document.documentElement;
     root.style.backgroundColor = '#fff';
+    root.style.overflow = 'hidden';
     return () => {
       root.style.backgroundColor = '';
+      root.style.overflow = '';
     };
   }, []);
 
   useEffect(() => {
     document.getElementById('boot')?.remove();
-    let fade = 0;
+    let exit = 0;
     let end = 0;
     const frame = requestAnimationFrame(() => {
-      if (canvasRef.current) {
+      const canvas = canvasRef.current;
+      const lock = lockRef.current;
+      let ink: Ink | null = null;
+      if (canvas) {
         try {
-          drawWordmark(canvasRef.current);
+          ink = drawWordmark(canvas);
         } catch {
           // Without canvas support the caption still shows on the white screen.
         }
       }
+      if (lock) {
+        // On desktop the page keeps a white strip for its scrollbar on the right. Move the logo
+        // half that width so it sits in the middle of the whole window, not just the page.
+        const strip = Math.max(0, window.innerWidth - (lock.parentElement?.clientWidth ?? window.innerWidth));
+        let rise = 0;
+        if (ink && canvas) {
+          // Tuck the caption just under the letters, then center letters and caption together.
+          lock.style.setProperty('--sub-pull', `${canvas.clientHeight - ink.bottom - CAPTION_GAP}px`);
+          rise = ink.top / 2;
+        }
+        lock.style.translate = `${strip / 2}px ${-rise}px`;
+      }
       setDrawn(true);
-      fade = window.setTimeout(() => setLeaving(true), SHOW_MS);
-      end = window.setTimeout(() => done.current(), SHOW_MS + FADE_MS);
+      exit = window.setTimeout(() => setLeaving(true), SHOW_MS);
+      end = window.setTimeout(() => done.current(), SHOW_MS + EXIT_MS);
     });
     return () => {
       cancelAnimationFrame(frame);
-      clearTimeout(fade);
+      clearTimeout(exit);
       clearTimeout(end);
     };
   }, []);
 
   return (
     <div className={leaving ? 'splash leaving' : 'splash'} role="img" aria-label="Kilig CSE Reviewer">
-      <div className="splash-lockup" aria-hidden="true">
-        <canvas ref={canvasRef} className={drawn ? 'splash-mark on' : 'splash-mark'} />
+      <div ref={lockRef} className={drawn ? 'splash-lockup on' : 'splash-lockup'} aria-hidden="true">
+        <canvas ref={canvasRef} className="splash-mark" />
         <span className="splash-sub">CSE Reviewer</span>
+      </div>
+      <div className="splash-rail" aria-hidden="true">
+        <span className="splash-cord">
+          <span className="splash-ring" />
+        </span>
       </div>
     </div>
   );
@@ -67,15 +95,28 @@ export function Splash({ onDone }: { onDone: () => void }) {
  * letter has a corner or point; a blur-and-threshold pass rounds the inside corners
  * too. Each shape gets a flat face and a solid darker edge below it, like the app's
  * cards. Then the flat logo is projected through a wide-angle camera held above it
- * and looking down, the way a 0.5x photo from above looks.
+ * and looking down, the way a 0.5x photo from above looks, with a gentle lens bulge.
+ * Finally it is sized and centered by its visible letters, not by its outer box.
  */
 
 const STROKE = 0.34;
 /** How far the darker edge shows below each shape, in letter units. */
 const EDGE = 0.09;
-/** Visible logo box in letter units (edge included), used to size and center everything. */
+/** Visible logo box in letter units (edge included), used for the first sizing guess. */
 const BOX = { left: -0.17, right: 3.97, top: -0.38, bottom: 1.17 + EDGE };
 const PAD = 0.2;
+/** Lens bulge: the middle of the logo swells and the ends curve away, about a fifth at the edges. */
+const BULGE = 0.25;
+/** How much of the canvas the visible letters fill. */
+const FILL = { w: 0.9, h: 0.8 };
+
+/** Where the visible letters ended up, in CSS pixels from the canvas's top-left corner. */
+interface Ink {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+}
 
 function strokeLetters(g: CanvasRenderingContext2D) {
   g.beginPath();
@@ -169,14 +210,14 @@ function paint(shape: Float32Array, w: number, h: number, rgb: RGB, rgba: Float3
   }
 }
 
-function drawWordmark(canvas: HTMLCanvasElement) {
+function drawWordmark(canvas: HTMLCanvasElement): Ink | null {
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   const W = Math.max(1, Math.round(canvas.clientWidth * dpr));
   const H = Math.max(1, Math.round(canvas.clientHeight * dpr));
   canvas.width = W;
   canvas.height = H;
   const out = canvas.getContext('2d');
-  if (!out) return;
+  if (!out) return null;
 
   // 1. Flat logo, in its own texture.
   const unit = Math.max(8, Math.round(W * 0.23));
@@ -188,7 +229,7 @@ function drawWordmark(canvas: HTMLCanvasElement) {
   flat.width = TW;
   flat.height = TH;
   const g = flat.getContext('2d');
-  if (!g) return;
+  if (!g) return null;
   const toUnits = () => g.setTransform(unit, 0, 0, unit, -left * unit, -top * unit);
   const maskOf = () => {
     const d = g.getImageData(0, 0, TW, TH).data;
@@ -218,9 +259,8 @@ function drawWordmark(canvas: HTMLCanvasElement) {
   paint(letters, TW, TH, PINK, tex);
   paint(heart, TW, TH, SUN, tex);
 
-  // 2. Wide-angle camera held close above the logo, looking down at it: straight
-  //    lines stay straight, the top looms large and the letters taper toward the
-  //    bottom, the way a 0.5x photo from above looks.
+  // 2. Wide-angle camera held close above the logo, looking down at it: the top looms
+  //    large and the letters taper toward the bottom, the way a 0.5x photo from above looks.
   const tilt = (-24 * Math.PI) / 180;
   const ca = Math.cos(tilt);
   const sa = Math.sin(tilt);
@@ -231,40 +271,79 @@ function drawWordmark(canvas: HTMLCanvasElement) {
     const z = dist - v * sa;
     return [u / z, (v * ca) / z];
   };
-  let minX = Infinity;
-  let maxX = -Infinity;
-  let minY = Infinity;
-  let maxY = -Infinity;
+
+  // 3. A gentle lens bulge around the canvas center. A point that would land r pixels from
+  //    the center without the lens is drawn where r' = r (1 + BULGE r² / R²) holds.
+  const cx = W / 2;
+  const cy = H / 2;
+  const R2 = cx * cx;
+  const throughLens = (x: number, y: number) => {
+    const ex = x - cx;
+    const ey = y - cy;
+    const far = Math.hypot(ex, ey);
+    if (far < 1e-6) return [x, y];
+    let r = far;
+    for (let i = 0; i < 6; i++) r -= (r * (1 + (BULGE * r * r) / R2) - far) / (1 + (3 * BULGE * r * r) / R2);
+    return [cx + (ex * r) / far, cy + (ey * r) / far];
+  };
+
+  // 4. Size and center by the visible letters. Sample the logo's solid pixels, follow them
+  //    through camera and lens, and nudge the scale and position until they fill the frame
+  //    and sit exactly in the middle.
+  const solid: number[] = [];
+  for (let y = 0; y < TH; y += 2) {
+    for (let x = 0; x < TW; x += 2) {
+      if (tex[(y * TW + x) * 4 + 3] > 0.5) solid.push(...project(x + 0.5 - cxu, y + 0.5 - cyu));
+    }
+  }
   const halfU = ((BOX.right - BOX.left) / 2) * unit;
   const halfV = ((BOX.bottom - BOX.top) / 2) * unit;
-  for (const [u, v] of [[-halfU, -halfV], [halfU, -halfV], [-halfU, halfV], [halfU, halfV]]) {
-    const [px, py] = project(u, v);
-    minX = Math.min(minX, px);
-    maxX = Math.max(maxX, px);
-    minY = Math.min(minY, py);
-    maxY = Math.max(maxY, py);
+  let f = Math.min((FILL.w * W) / (2 * project(halfU, -halfV)[0]), (FILL.h * H) / (project(0, halfV)[1] - project(0, -halfV)[1]));
+  let ox = cx;
+  let oy = cy;
+  const bounds = () => {
+    let x0 = Infinity;
+    let x1 = -Infinity;
+    let y0 = Infinity;
+    let y1 = -Infinity;
+    for (let i = 0; i < solid.length; i += 2) {
+      const [x, y] = throughLens(ox + f * solid[i], oy + f * solid[i + 1]);
+      if (x < x0) x0 = x;
+      if (x > x1) x1 = x;
+      if (y < y0) y0 = y;
+      if (y > y1) y1 = y;
+    }
+    return { x0, x1, y0, y1 };
+  };
+  if (solid.length) {
+    for (let pass = 0; pass < 8; pass++) {
+      const b = bounds();
+      f *= Math.min((FILL.w * W) / (b.x1 - b.x0), (FILL.h * H) / (b.y1 - b.y0));
+      ox += cx - (b.x0 + b.x1) / 2;
+      oy += cy - (b.y0 + b.y1) / 2;
+    }
   }
-  const f = Math.min((0.94 * W) / (maxX - minX), (0.9 * H) / (maxY - minY));
-  const ox = W / 2 - (f * (minX + maxX)) / 2;
-  const oy = H / 2 - (f * (minY + maxY)) / 2;
 
+  // 5. Draw: for every canvas pixel, undo the lens and the camera to find its spot on the flat logo.
   const img = out.createImageData(W, H);
   const dst = img.data;
   for (let Y = 0; Y < H; Y++) {
-    const dy = (Y + 0.5 - oy) / f;
-    const denom = dy * sa + ca;
-    if (denom <= 1e-6) continue;
-    const t = (dist * ca) / denom;
-    const v = t * dy * ca - (t - dist) * sa;
-    const ty = v + cyu - 0.5;
-    const fy = Math.floor(ty);
-    const wy = ty - fy;
-    if (fy < -1 || fy >= TH) continue;
     for (let X = 0; X < W; X++) {
-      const tx = t * ((X + 0.5 - ox) / f) + cxu - 0.5;
+      const ex = X + 0.5 - cx;
+      const ey = Y + 0.5 - cy;
+      const m = 1 + (BULGE * (ex * ex + ey * ey)) / R2;
+      const dx = (cx + ex * m - ox) / f;
+      const dy = (cy + ey * m - oy) / f;
+      const denom = dy * sa + ca;
+      if (denom <= 1e-6) continue;
+      const ty = (dist * dy) / denom + cyu - 0.5;
+      const fy = Math.floor(ty);
+      if (fy < -1 || fy >= TH) continue;
+      const tx = ((dist * ca) / denom) * dx + cxu - 0.5;
       const fx = Math.floor(tx);
       if (fx < -1 || fx >= TW) continue;
       const wx = tx - fx;
+      const wy = ty - fy;
       let r = 0;
       let gr = 0;
       let b = 0;
@@ -289,4 +368,9 @@ function drawWordmark(canvas: HTMLCanvasElement) {
     }
   }
   out.putImageData(img, 0, 0);
+
+  if (!solid.length) return null;
+  const b = bounds();
+  const css = canvas.clientWidth / W;
+  return { top: b.y0 * css, bottom: b.y1 * css, left: b.x0 * css, right: b.x1 * css };
 }

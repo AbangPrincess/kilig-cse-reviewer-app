@@ -28,6 +28,7 @@ const PATHS = {
   upload: 'M12 21V9M7 14l5-5 5 5M4 4h16',
   calendar: 'M4 6h16v15H4zM4 10h16M8 3v5M16 3v5',
   lock: 'M6 11h12v10H6zM8 11V7a4 4 0 0 1 8 0v4',
+  chat: 'M5 4h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-7l-5 4v-4H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM8 9h8M8 12.5h5',
   heart: HEART,
   broken: `${HEART}${CRACK}`,
 } as const;

@@ -6,7 +6,7 @@ import type { AppState, ExamRun, MockResult, SectionId, SectionScore } from '../
 import { clock } from '../lib/format';
 import { sectionName } from '../data/topics';
 import { DecoHeart, Icon } from '../components/Icons';
-import { Choice, QuestionBody, ScrollRow, StableText } from '../components/Common';
+import { Choice, QuestionBody, ScrollRow, StableText, choicesClass } from '../components/Common';
 import { useConfirm } from '../components/Confirm';
 import { TabBar } from '../components/TabBar';
 import { go, href } from '../lib/router';
@@ -265,10 +265,10 @@ export function ExamRunScreen() {
 
       <main className="exam-body">
         {isSectionStart && <span className="kicker" style={{ color: 'var(--rose)' }}>Part: {sectionName(q.section)}</span>}
-        <QuestionBody q={q} big={!q.passage && !q.table && q.stem.length < 40} />
-        <div className="choices" role="radiogroup" aria-label="Answer choices">
+        <QuestionBody q={q} big={!q.passage && !q.table && !q.chart && !q.figure && q.stem.length < 40} />
+        <div className={choicesClass(q)} role="radiogroup" aria-label="Answer choices">
           {q.choices.map((c, i) => (
-            <Choice key={i} i={i} text={c} state={run.answers[run.current] === i ? 'selected' : 'idle'} onPick={() => pick(i)} />
+            <Choice key={i} i={i} text={c} pic={q.figChoices?.[i]} frame={q.figure?.frame} state={run.answers[run.current] === i ? 'selected' : 'idle'} onPick={() => pick(i)} />
           ))}
         </div>
       </main>

@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useRef, useState, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react';
-import type { Question } from '../lib/types';
+import type { Pic, Question } from '../lib/types';
 import { Icon } from './Icons';
+import { ChartView, FigureView, PicView } from './Visuals';
 
 /** Renders text where **double stars** mark bold words. */
 export function Rich({ text }: { text: string }) {
@@ -56,6 +57,8 @@ export function QuestionBody({ q, big }: { q: Question; big?: boolean }) {
     <>
       {q.directions && <p className="directions">{q.directions}</p>}
       {q.passage && <div className="passage">{q.passage}</div>}
+      {q.chart && <ChartView chart={q.chart} />}
+      {q.figure && <FigureView fig={q.figure} />}
       {q.table && (
         <table className="dtable">
           {q.table.caption && <caption>{q.table.caption}</caption>}
@@ -76,21 +79,31 @@ export function QuestionBody({ q, big }: { q: Question; big?: boolean }) {
 
 export type ChoiceState = 'idle' | 'selected' | 'right' | 'wrong' | 'dim';
 
-export function Choice({ i, text, state, onPick }: { i: number; text: string; state: ChoiceState; onPick?: () => void }) {
+/** The choice list's class: figure choices sit in a 2 × 2 grid. */
+export const choicesClass = (q: Question) => (q.figChoices ? 'choices fig-choices' : 'choices');
+
+export function Choice({ i, text, state, onPick, pic, frame }: { i: number; text: string; state: ChoiceState; onPick?: () => void; pic?: Pic; frame?: 'circle' }) {
   const done = state === 'right' || state === 'wrong' || state === 'dim';
   return (
     <button
       type="button"
       role="radio"
       aria-checked={state === 'selected' || state === 'wrong'}
-      className={`choice ${state}`}
+      className={`choice ${state}${pic ? ' has-pic' : ''}`}
       onClick={done ? undefined : onPick}
       aria-disabled={done || undefined}
     >
       <span className="letter">
         {state === 'right' ? <Icon name="check" size={18} stroke={3} /> : state === 'wrong' ? <Icon name="x" size={18} stroke={3} /> : letter(i)}
       </span>
-      <span className="txt">{state === 'right' || state === 'wrong' ? `${letter(i)}. ${text}` : text}</span>
+      {pic ? (
+        <>
+          <PicView pic={pic} frame={frame} />
+          <span className="sr-only">{state === 'right' || state === 'wrong' ? `${letter(i)}. ${text}` : text}</span>
+        </>
+      ) : (
+        <span className="txt">{state === 'right' || state === 'wrong' ? `${letter(i)}. ${text}` : text}</span>
+      )}
       {state === 'right' && <span className="tag">CORRECT</span>}
       {state === 'wrong' && <span className="tag">YOURS</span>}
     </button>

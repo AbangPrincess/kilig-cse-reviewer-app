@@ -43,6 +43,16 @@ export const ANALYTICAL_LESSONS: Record<string, Lesson> = {
       { kind: 'trap', kicker: 'Heartbreak Trap', title: 'Check the Whole Pattern', wrong: 'B, C, E, H, ___ → I', body: ['The gaps are +1, +2, +3, so the next gap is **+4**: H (8) + 4 = **L** (12).', 'Look at every gap, not only the last one.'] },
     ],
   },
+  figures: {
+    topic: 'figures',
+    minutes: 5,
+    cards: [
+      { kind: 'love', kicker: LOVE, title: 'Spotting the Pattern in Their Texts', body: ['After a few weeks, you can tell your date’s mood from their texts: one heart means okay, three hearts means very happy, no emoji means trouble.', 'Figure puzzles are the same. Each picture changes by a **rule**, and once you see the rule, the missing picture is easy.'] },
+      { kind: 'idea', kicker: 'The Secret', title: 'Check the Usual Rules One by One', body: ['**Add:** the third figure is the first two drawn together.', '**Cancel:** lines found in both figures disappear; the rest stay.', '**Count:** dots, lines or sides go up or down by the same amount.', '**Turn:** a shape rotates by the same angle every step.', '**One of each:** every row and column has each shape and each shading once.'], example: { q: 'A pyramid: two figures sit below each figure. What goes at the top?', steps: ['Look at one middle figure and the two figures below it.', 'If it holds every line from both, the rule is Add.', 'So the top holds every line from the whole bottom row.'], answer: 'All the bottom pieces, put together.' } },
+      { kind: 'rule', kicker: 'The Rule', title: 'Test Your Rule on a Full Row', formula: 'Find the rule in row 1, check it in row 2, use it in row 3', formulaNote: 'A rule that works for only one row is a guess. It has to fit every complete row before you trust it.', shortcut: { title: 'Hidden Shape Tips', lines: ['Same angle: a flipped or turned shape does not count', 'Size can change; the shape cannot', 'Trace it with your finger on the figure', 'Count its corners to check'] } },
+      { kind: 'trap', kicker: 'Heartbreak Trap', title: 'Add or Cancel? Check First', wrong: 'Assuming the third figure is always the first two added', body: ['Look for a line that appears in both of the first two figures. If it is **missing** from the third, the rule is cancel, not add.', 'One quick check saves you from the most common wrong choice.'] },
+    ],
+  },
   'odd-one': {
     topic: 'odd-one',
     minutes: 3,

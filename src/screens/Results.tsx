@@ -2,8 +2,9 @@ import { useStore } from '../lib/store';
 import { duration } from '../lib/format';
 import { SECTIONS, topicName } from '../data/topics';
 import { Icon } from '../components/Icons';
-import { Choice, QuestionBody, Ring, BackLink, letter } from '../components/Common';
+import { Choice, QuestionBody, Ring, BackLink, choicesClass, letter } from '../components/Common';
 import { href } from '../lib/router';
+import { FeedbackNudge } from '../components/Feedback';
 import type { MockResult } from '../lib/types';
 
 function findMock(mocks: MockResult[], id: string | null) {
@@ -79,6 +80,7 @@ export function Results({ id }: { id: string | null }) {
         )}
         <a href={href(`/learn?section=${weakest?.s.id ?? 'numerical'}`)} className="btn btn-ghost block">Practice {weakest?.s.short ?? 'Numerical'}</a>
       </div>
+      <FeedbackNudge where="After a mock exam" />
     </main>
   );
 }
@@ -104,9 +106,9 @@ export function MockReview({ id }: { id: string | null }) {
           </summary>
           <div className="stack" style={{ gap: 12, marginTop: 12 }}>
             <QuestionBody q={q} />
-            <div className="choices">
+            <div className={choicesClass(q)}>
               {q.choices.map((c, i) => (
-                <Choice key={i} i={i} text={c} state={i === q.answer ? 'right' : i === picked ? 'wrong' : 'dim'} />
+                <Choice key={i} i={i} text={c} pic={q.figChoices?.[i]} frame={q.figure?.frame} state={i === q.answer ? 'right' : i === picked ? 'wrong' : 'dim'} />
               ))}
             </div>
             {picked !== null && q.why?.[picked] && <p className="p">{q.why[picked]}</p>}

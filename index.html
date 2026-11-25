@@ -19,6 +19,14 @@
   <body>
     <div id="boot"></div>
     <div id="root"></div>
+    <!-- Lets the host recognize the in-app feedback form. The app sends it with fetch. -->
+    <form name="feedback" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input type="hidden" name="form-name" value="feedback" />
+      <input name="rating" />
+      <textarea name="message"></textarea>
+      <input name="where" />
+      <input name="bot-field" />
+    </form>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

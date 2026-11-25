@@ -33,11 +33,21 @@ export const VERBAL_LESSONS: Record<string, Lesson> = {
       { kind: 'trap', kicker: 'Heartbreak Trap', title: 'The Twin Is a Trap', wrong: 'Opposite of DIFFICULT → hard', body: ['"Hard" means almost the **same** as difficult. It is the twin, not the opposite. The opposite is **easy**.', 'Under time pressure, many examinees pick the twin. Always ask: same, or opposite?'] },
     ],
   },
+  idioms: {
+    topic: 'idioms',
+    minutes: 3,
+    cards: [
+      { kind: 'love', kicker: LOVE, title: 'Inside Jokes', body: ['Every couple has inside jokes. Say "the mango incident" and your partner laughs, even though no one else gets it.', 'Idioms are a whole language’s inside jokes: the words say one thing, but everyone **means** another.'] },
+      { kind: 'idea', kicker: 'The Secret', title: 'Picture It, Then Read the Room', body: ['Do not take the words literally. Ask what the **situation** in the sentence is about.', 'Then pick the choice that fits that situation, even if it shares no words with the idiom.'], example: { q: 'After the fight, the two neighbors decided to BURY THE HATCHET.', steps: ['Nobody is digging a hole for an axe.', 'The situation: two people who fought are now ending it.', 'So it means: make peace.'], answer: 'make peace' } },
+      { kind: 'rule', kicker: 'The Rule', title: 'Meaning Beats Matching Words', formula: 'Idiom ≠ its words', formulaNote: 'The choice that repeats the idiom’s words ("hide an axe", "free a cat") is almost always the trap.', shortcut: { title: 'Common Exam Idioms', lines: ['break the ice → ease the awkwardness', 'hit the nail on the head → exactly right', 'let the cat out of the bag → reveal a secret', 'a wolf in sheep’s clothing → harmful but looks harmless'] } },
+      { kind: 'trap', kicker: 'Heartbreak Trap', title: 'The Literal Choice', wrong: 'BROKE THE BANK → "robbed a bank"', body: ['The exam loves a choice that reads the idiom word for word.', 'If a choice sounds like a cartoon of the words, **swipe left**.'] },
+    ],
+  },
   spelling: {
     topic: 'spelling',
     minutes: 3,
     cards: [
-      { kind: 'love', kicker: LOVE, title: 'Spelling Their Name Right', body: ["Nothing kills the mood like misspelling your date's name on a gift. One wrong letter, and it looks like you don't care.", 'Spelling items test those small letters: doubled or not, e or a, ie or ei.'] },
+      { kind: 'love', kicker: LOVE, title: 'Spelling Their Name Right', body: ["Nothing kills the mood like misspelling your date’s name on a gift. One wrong letter, and it looks like you don't care.", 'Spelling items test those small letters: doubled or not, e or a, ie or ei.'] },
       { kind: 'idea', kicker: 'The Secret', title: 'Say It in Syllables', body: ['Break the word into small sounds and spell each part: **gov-ern-ment**, **sep-a-rate**.', "The hard part is often a letter you don't hear clearly. Saying it slowly makes it show up."], example: { q: 'Which is correct: enviroment or environment?', steps: ['Break it: en-vi-ron-ment.', 'People often drop the "n" in "environ" when speaking.', 'Keep it: environment.'], answer: 'environment' } },
       { kind: 'rule', kicker: 'The Rule', title: 'One Collar, Two Sleeves', formula: 'necessary = 1 c, 2 s', formulaNote: 'Like a shirt with one collar and two sleeves. Little pictures like this make tricky spellings stick.', shortcut: { title: 'Commonly Missed Words', lines: ['accommodate (cc, mm)', 'occurrence (cc, rr, -ence)', 'separate (a in the middle)', 'receive (i before e, except after c)'] } },
       { kind: 'trap', kicker: 'Heartbreak Trap', title: "Don't Spell It the Way You Say It", wrong: 'goverment', body: ['Many people drop the "n" when they say "government" out loud. The spelling keeps it: **govern + ment**.', 'When a word is built from a smaller word, keep the smaller word whole.'] },

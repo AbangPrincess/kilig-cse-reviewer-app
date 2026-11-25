@@ -6,8 +6,10 @@ import type { AppState, DiagnosticResult, LoveLevel, SectionId, SectionScore } f
 import { clock, duration } from '../lib/format';
 import { SECTIONS, topicById, topicName } from '../data/topics';
 import { Icon } from '../components/Icons';
-import { Choice, QuestionBody, Ring, StableText, letter, type ChoiceState } from '../components/Common';
+import { Choice, QuestionBody, Ring, StableText, choicesClass, letter, type ChoiceState } from '../components/Common';
 import { go, href } from '../lib/router';
+import { FeedbackNudge } from '../components/Feedback';
+import { notePracticeFinished } from '../lib/feedback';
 
 const RIGHT_LINES = ["Yieee! That's Right.", 'Slay! You Got It.', 'Perfect Match!', 'You Ate That!'];
 const WRONG_LINES = ['Heartbreak!', 'Ouch, Not This One.', "It's Not You, It's the Answer.", 'Oof! Not Quite.'];
@@ -111,6 +113,7 @@ export function Practice({ kind, topic, section }: { kind: SessionKind; topic?: 
     if (kind === 'topic' && topic && score / all.length >= 0.6 && before < 2) levelUp = 2;
     if (kind === 'mastery' && topic && score >= 8 && avg <= 60000 && before < 3) levelUp = 3;
     if (kind === 'diagnostic') diag = diagnose(session.questions, all);
+    notePracticeFinished();
     setFinished({ levelUp, diag });
   }
 
@@ -144,9 +147,9 @@ export function Practice({ kind, topic, section }: { kind: SessionKind; topic?: 
 
       <QuestionBody q={q} />
 
-      <div className="choices" role="radiogroup" aria-label="Answer choices">
+      <div className={choicesClass(q)} role="radiogroup" aria-label="Answer choices">
         {q.choices.map((c, i) => (
-          <Choice key={i} i={i} text={c} state={stateOf(i)} onPick={() => setPicked(i)} />
+          <Choice key={i} i={i} text={c} pic={q.figChoices?.[i]} frame={q.figure?.frame} state={stateOf(i)} onPick={() => setPicked(i)} />
         ))}
       </div>
 
@@ -324,6 +327,7 @@ function Summary({ kind, topic, results, finished, onAgain, exitTo }: { kind: Se
           </>
         )}
       </div>
+      <FeedbackNudge where={`After a ${kind} practice set`} />
     </main>
   );
 }
