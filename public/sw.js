@@ -1,5 +1,5 @@
 // Simple offline support: network-first for pages, cache-first for built assets.
-const CACHE = 'kilig-cse-v2';
+const CACHE = 'kismet-cse-v3';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(['/', '/index.html', '/icon.svg', '/manifest.webmanifest'])));

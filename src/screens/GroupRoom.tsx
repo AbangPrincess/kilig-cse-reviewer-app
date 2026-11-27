@@ -339,7 +339,7 @@ function Lobby({
   async function share() {
     if (navigator.share) {
       try {
-        await navigator.share({ title: 'Kilig CSE Reviewer', text: `Join my study date! Code: ${st.code}`, url: link });
+        await navigator.share({ title: 'Kismet CSE Reviewer', text: `Join my study date! Code: ${st.code}`, url: link });
         return;
       } catch {
         // Closed the share sheet: fall back to copying.

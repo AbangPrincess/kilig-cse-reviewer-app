@@ -20,7 +20,7 @@ import { cleanCode } from './shared/group';
 import { Welcome } from './screens/Welcome';
 
 const SECTION_IDS: SectionId[] = ['numerical', 'verbal', 'analytical', 'geninfo'];
-const KINDS: SessionKind[] = ['topic', 'section', 'quick', 'review', 'mastery', 'diagnostic'];
+const KINDS: SessionKind[] = ['topic', 'section', 'quick', 'review', 'early', 'mastery', 'diagnostic'];
 
 function Screens() {
   const { state } = useStore();
@@ -28,7 +28,7 @@ function Screens() {
   const key = `${path}?${query.toString()}`;
 
   useEffect(() => {
-    document.title = 'Kilig CSE Reviewer';
+    document.title = 'Kismet CSE Reviewer';
   }, []);
 
   const topic = query.get('topic') ?? undefined;

@@ -16,7 +16,7 @@ const SUN_EDGE: RGB = [201, 143, 18]; // --sun-dark
 /** Space between the bottom of the letters and the caption, in CSS pixels. */
 const CAPTION_GAP = 10;
 
-/** Opening screen: chubby pink "KiLIG" letters, shot from above with a slightly bulging wide lens. */
+/** Opening screen: chubby pink "KiSMET" letters, shot from above with a slightly bulging wide lens. */
 export function Splash({ onDone }: { onDone: () => void }) {
   const [leaving, setLeaving] = useState(false);
   const [drawn, setDrawn] = useState(false);
@@ -76,7 +76,7 @@ export function Splash({ onDone }: { onDone: () => void }) {
   }, []);
 
   return (
-    <div className={leaving ? 'splash leaving' : 'splash'} role="img" aria-label="Kilig CSE Reviewer">
+    <div className={leaving ? 'splash leaving' : 'splash'} role="img" aria-label="Kismet CSE Reviewer">
       <div ref={lockRef} className={drawn ? 'splash-lockup on' : 'splash-lockup'} aria-hidden="true">
         <canvas ref={canvasRef} className="splash-mark" />
         <span className="splash-sub">CSE Reviewer</span>
@@ -103,7 +103,7 @@ const STROKE = 0.34;
 /** How far the darker edge shows below each shape, in letter units. */
 const EDGE = 0.09;
 /** Visible logo box in letter units (edge included), used for the first sizing guess. */
-const BOX = { left: -0.17, right: 3.97, top: -0.38, bottom: 1.17 + EDGE };
+const BOX = { left: -0.17, right: 5.35, top: -0.38, bottom: 1.17 + EDGE };
 const PAD = 0.2;
 /** Lens bulge: the middle of the logo swells and the ends curve away, about a fifth at the edges. */
 const BULGE = 0.25;
@@ -129,18 +129,28 @@ function strokeLetters(g: CanvasRenderingContext2D) {
   // ı (its dot is the heart)
   g.moveTo(1.02, 0.38);
   g.lineTo(1.02, 1);
-  // L
-  g.moveTo(1.5, 0);
-  g.lineTo(1.5, 1);
-  g.lineTo(1.96, 1);
-  // I
-  g.moveTo(2.42, 0);
-  g.lineTo(2.42, 1);
-  g.stroke();
-  // G
-  g.beginPath();
-  g.ellipse(3.34, 0.5, 0.46, 0.5, 0, -Math.PI / 4, Math.PI * 0.1, true);
-  g.lineTo(3.4, 0.58);
+  // S: two stacked loops of the same size
+  g.moveTo(1.75 + 0.25 * Math.cos(-0.7), 0.25 + 0.25 * Math.sin(-0.7));
+  g.arc(1.75, 0.25, 0.25, -0.7, Math.PI / 2, true);
+  g.arc(1.75, 0.75, 0.25, -Math.PI / 2, Math.PI - 0.7);
+  // M
+  g.moveTo(2.48, 1);
+  g.lineTo(2.48, 0);
+  g.lineTo(2.83, 0.6);
+  g.lineTo(3.18, 0);
+  g.lineTo(3.18, 1);
+  // E
+  g.moveTo(4.1, 0);
+  g.lineTo(3.66, 0);
+  g.lineTo(3.66, 1);
+  g.lineTo(4.1, 1);
+  g.moveTo(3.66, 0.5);
+  g.lineTo(4.02, 0.5);
+  // T
+  g.moveTo(4.58, 0);
+  g.lineTo(5.18, 0);
+  g.moveTo(4.88, 0);
+  g.lineTo(4.88, 1);
   g.stroke();
 }
 

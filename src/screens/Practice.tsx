@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../lib/store';
 import { buildSession, type SessionKind } from '../lib/sessions';
-import { LOVE_LABELS, markPlan, recordAnswer, reviewMistake, setLevel, topicOf } from '../lib/progress';
+import { LOVE_LABELS, dueMistakes, markPlan, recordAnswer, reviewMistake, setLevel, topicOf } from '../lib/progress';
 import type { AppState, DiagnosticResult, LoveLevel, SectionId, SectionScore } from '../lib/types';
 import { clock, duration } from '../lib/format';
 import { SECTIONS, topicById, topicName } from '../data/topics';
@@ -42,17 +42,29 @@ export function Practice({ kind, topic, section }: { kind: SessionKind; topic?: 
   const noFeedback = kind === 'diagnostic';
   const allowHints = kind !== 'mastery' && kind !== 'diagnostic';
 
-  const exitTo = kind === 'diagnostic' ? '/' : kind === 'review' ? '/me' : `/learn?section=${(topic && topicById(topic)?.section) || section || 'numerical'}`;
+  const exitTo = kind === 'diagnostic' ? '/' : kind === 'review' || kind === 'early' ? '/me' : `/learn?section=${(topic && topicById(topic)?.section) || section || 'numerical'}`;
 
   if (!total) {
+    const saved = state.mistakes.length;
     return (
       <main className="screen bare" style={{ justifyContent: 'center' }}>
         <div className="hero stack center" style={{ alignItems: 'center', gap: 12 }}>
           <Icon name="heart" filled size={64} color="var(--sun)" />
-          <h1 className="h1" style={{ color: '#fff' }}>No Mistakes Due Today</h1>
-          <p className="p" style={{ color: 'var(--plum-ink)' }}>Every missed question is waiting for its second chance on another day. Yieee!</p>
+          <h1 className="h1" style={{ color: '#fff' }}>{saved ? 'No Mistakes Due Today' : 'No Saved Mistakes'}</h1>
+          <p className="p" style={{ color: 'var(--plum-ink)' }}>
+            {saved
+              ? `You have ${saved} saved. Each one comes back on its own day so it sticks, but you can practice them now too.`
+              : 'Questions you miss are saved here for a second chance. Yieee!'}
+          </p>
         </div>
-        <a href={href('/')} className="btn btn-rose block">Back Home</a>
+        {saved > 0 && kind === 'review' && (
+          <a href={href(`/practice?kind=early&n=${Date.now()}`)} className="btn btn-rose block">
+            Practice Them Early
+          </a>
+        )}
+        <a href={href('/')} className={saved > 0 && kind === 'review' ? 'btn btn-ghost block' : 'btn btn-rose block'}>
+          Back Home
+        </a>
       </main>
     );
   }
@@ -67,7 +79,7 @@ export function Practice({ kind, topic, section }: { kind: SessionKind; topic?: 
     const correct = picked === q.answer;
     const reviewKey = session.reviewKeys?.[idx];
     update((s) => {
-      let n = recordAnswer(s, q, correct, ms, { trackMistake: kind !== 'review' });
+      let n = recordAnswer(s, q, correct, ms, { trackMistake: kind !== 'review' && kind !== 'early' });
       if (reviewKey) n = reviewMistake(n, reviewKey, correct);
       return n;
     });
@@ -212,7 +224,8 @@ export function Practice({ kind, topic, section }: { kind: SessionKind; topic?: 
               {idx + 1 < total ? 'Next Question' : 'See Results'}
             </button>
           </div>
-          {!isRight && kind !== 'review' && <span className="small muted center">Saved to your mistakes. It comes back tomorrow{q.gen ? ' with new numbers' : ''}.</span>}
+          {!isRight && kind !== 'review' && kind !== 'early' && <span className="small muted center">Saved to your mistakes. It comes back tomorrow{q.gen ? ' with new numbers' : ''}.</span>}
+          {kind === 'early' && <span className="small muted center">Extra practice: this mistake still comes back on its review day.</span>}
         </section>
       )}
     </main>
@@ -242,6 +255,8 @@ function Summary({ kind, topic, results, finished, onAgain, exitTo }: { kind: Se
   const pct = Math.round((score / results.length) * 100);
   const avg = results.reduce((a, r) => a + r.ms, 0) / results.length;
   const name = topic ? topicById(topic)?.name : undefined;
+  const { state } = useStore();
+  const moreDue = dueMistakes(state).length;
   const title = pct >= 80 ? 'Yieee! You Did Great.' : pct >= 60 ? 'Getting Closer!' : "It's Not Over between You Two.";
   const weakTopics = useMemo(() => {
     if (!finished.diag) return [];
@@ -313,6 +328,11 @@ function Summary({ kind, topic, results, finished, onAgain, exitTo }: { kind: Se
           <a href={href('/')} className="btn btn-rose block">Start My Study Plan</a>
         ) : (
           <>
+            {kind === 'review' && moreDue > 0 && (
+              <button type="button" className="btn btn-rose block" onClick={onAgain}>
+                Review {moreDue} More
+              </button>
+            )}
             {kind !== 'review' && (
               <button type="button" className="btn btn-rose block" onClick={onAgain}>
                 Practice Again

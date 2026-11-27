@@ -17,7 +17,7 @@ export function Welcome() {
       <section className="hero stack" style={{ gap: 14, padding: 26, borderRadius: 32, minHeight: 330, justifyContent: 'flex-end' }}>
         <Icon name="heart" filled size={180} color="var(--rose)" style={{ position: 'absolute', right: -40, top: -40, opacity: 0.5 }} />
         <Icon name="heart" filled size={70} color="var(--sun)" style={{ position: 'absolute', right: 120, top: 22, opacity: 0.9 }} />
-        <span className="kicker" style={{ color: 'var(--sun)' }}>Kilig CSE Reviewer</span>
+        <span className="kicker" style={{ color: 'var(--sun)' }}>Kismet CSE Reviewer</span>
         <h1 className="h1" style={{ color: '#fff', fontSize: 36 }}>Fall in Love with the Civil Service Exam.</h1>
         <p className="p" style={{ color: 'var(--plum-ink)' }}>Professional level. Lessons with love analogies, endless Numerical practice, and full mock exams.</p>
       </section>

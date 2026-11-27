@@ -11,6 +11,7 @@ import { FIGURES } from '../data/bank/figures';
 import { EXAM_GENINFO } from '../data/bank/exam-geninfo';
 import { NUMERICAL } from '../data/bank/numerical';
 import { dueMistakes } from './progress';
+import { todayKey } from './format';
 
 export const BANK: Record<Exclude<SectionId, 'numerical'>, Question[]> = {
   verbal: [...EXAM_VERBAL, ...VERBAL],
@@ -33,7 +34,7 @@ function rank(qs: Question[], seen: Record<string, number>, r: () => number): Qu
 /** Items a Group Study Date can carry: no reading passages, charts or figures. */
 const groupSafe = (q: Question) => !q.passage && !q.chart && !q.figure && !q.group;
 
-export type SessionKind = 'topic' | 'section' | 'quick' | 'review' | 'mastery' | 'diagnostic';
+export type SessionKind = 'topic' | 'section' | 'quick' | 'review' | 'early' | 'mastery' | 'diagnostic';
 
 export interface Session {
   kind: SessionKind;
@@ -158,6 +159,17 @@ export function buildSession(s: AppState, kind: SessionKind, opts: { topic?: str
         title: 'Mistakes Review',
         questions: due.map((m) => (m.q.gen ? generate(m.q.gen.topic, newSeed(), m.q.gen.template) : prepare(m.q))),
         reviewKeys: due.map((m) => m.key),
+      };
+    }
+    case 'early': {
+      // Saved mistakes that are not due yet, soonest first. Extra practice only: the review
+      // schedule (tomorrow, then in 3 days) does not change.
+      const today = todayKey();
+      const waiting = s.mistakes.filter((m) => m.due > today).sort((a, b) => a.due.localeCompare(b.due)).slice(0, 10);
+      return {
+        kind,
+        title: 'Extra Mistakes Practice',
+        questions: waiting.map((m) => (m.q.gen ? generate(m.q.gen.topic, newSeed(), m.q.gen.template) : prepare(m.q))),
       };
     }
     case 'diagnostic': {

@@ -19,7 +19,7 @@ function Privacy() {
   return (
     <>
       <p className="legal-lead">
-        Kilig CSE Reviewer is a free study app. It has no accounts and never asks for your email, phone number or password.
+        Kismet CSE Reviewer is a free study app. It has no accounts and never asks for your email, phone number or password.
       </p>
       <Section title="What Stays on Your Device">
         <p>
@@ -77,7 +77,7 @@ function Privacy() {
 function Terms() {
   return (
     <>
-      <p className="legal-lead">By using Kilig CSE Reviewer, you agree to these simple terms.</p>
+      <p className="legal-lead">By using Kismet CSE Reviewer, you agree to these simple terms.</p>
       <Section title="For Study Only">
         <p>
           This is a free, independent reviewer for the Philippine Civil Service Exam, for personal study only. It is not affiliated with or endorsed

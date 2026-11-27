@@ -41,7 +41,7 @@ export function Me() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `kilig-cse-backup-${todayKey()}.json`;
+    a.download = `kismet-cse-backup-${todayKey()}.json`;
     a.click();
     URL.revokeObjectURL(url);
     setMsg('Backup saved to your downloads.');
@@ -50,7 +50,7 @@ export function Me() {
   async function load(file: File) {
     const parsed = parseBackup(await file.text());
     if (!parsed) {
-      setMsg("That file doesn't look like a Kilig CSE backup.");
+      setMsg("That file doesn't look like a Kismet CSE backup.");
       return;
     }
     const ok = await confirm({
@@ -107,7 +107,9 @@ export function Me() {
           <span className="stack grow" style={{ gap: 2 }}>
             <span style={{ fontSize: 18, fontWeight: 800 }}>{due ? `${due} Mistake${due === 1 ? ' Wants' : 's Want'} a Second Chance` : 'No Mistakes Due Today'}</span>
             <span style={{ fontSize: 14, color: due ? 'var(--rose-soft)' : 'var(--muted)' }}>
-              {state.mistakes.length} saved in all · they come back tomorrow, then in 3 days
+              {due || !state.mistakes.length
+                ? `${state.mistakes.length} saved in all · they come back tomorrow, then in 3 days`
+                : `${state.mistakes.length} saved · tap to practice them early`}
             </span>
           </span>
         </a>

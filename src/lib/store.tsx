@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { AppState } from './types';
 
+/** Saved under the app's original name on purpose: renaming it would wipe everyone's progress. */
 const KEY = 'kilig-cse:v1';
 
 export function initialState(): AppState {

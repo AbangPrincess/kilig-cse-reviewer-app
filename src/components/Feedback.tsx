@@ -45,7 +45,7 @@ export function FeedbackSheet({ where, onClose }: { where: string; onClose: (sen
             <h2 id="feedback-title" className="h2">
               Thank You! Yieee!
             </h2>
-            <p className="p">Your feedback goes straight to the creator and helps make Kilig better for every examinee.</p>
+            <p className="p">Your feedback goes straight to the creator and helps make Kismet better for every examinee.</p>
             <button type="button" className="btn btn-ink block" onClick={close}>
               Done
             </button>
@@ -54,7 +54,7 @@ export function FeedbackSheet({ where, onClose }: { where: string; onClose: (sen
           <>
             <div className="between">
               <h2 id="feedback-title" className="h2" style={{ fontSize: 24 }}>
-                Rate Kilig CSE Reviewer
+                Rate Kismet CSE Reviewer
               </h2>
               <button type="button" className="icon-btn" style={{ background: 'var(--blush)' }} aria-label="Close feedback" onClick={close}>
                 <Icon name="x" size={20} />
@@ -124,7 +124,7 @@ export function FeedbackNudge({ where }: { where: string }) {
           <Icon name="heart" filled size={22} color="var(--rose)" />
         </span>
         <span className="stack grow" style={{ gap: 2 }}>
-          <strong style={{ fontSize: 15 }}>Enjoying Kilig So Far?</strong>
+          <strong style={{ fontSize: 15 }}>Enjoying Kismet So Far?</strong>
           <span className="small muted">A quick rating helps make it better for every examinee.</span>
         </span>
         <span className="feedback-nudge-actions">

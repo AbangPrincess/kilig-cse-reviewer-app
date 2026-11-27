@@ -1,6 +1,6 @@
 {
-  "name": "Kilig CSE Reviewer",
-  "short_name": "Kilig CSE",
+  "name": "Kismet CSE Reviewer",
+  "short_name": "Kismet",
   "description": "Civil Service Exam (Professional) reviewer with love-analogy lessons and mock exams.",
   "start_url": "/",
   "display": "standalone",
